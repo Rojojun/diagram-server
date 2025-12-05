@@ -1,18 +1,21 @@
 package main
 
 import (
+	"context"
 	"diagram-server/internal/bootstrap"
 	"log"
-	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
-	port := ":8080"
+	app := bootstrap.NewApplication()
 
-	bootstrap.StartUp(port)
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer cancel()
 
-	log.Printf(" Server is ready to handle requests on %s", port)
-	if err := http.ListenAndServe(port, nil); err != nil {
-		log.Fatal(err)
+	if err := app.Run(ctx); err != nil {
+		log.Fatalf("[Error] Application error: %v", err)
 	}
 }
