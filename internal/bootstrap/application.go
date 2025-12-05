@@ -20,7 +20,7 @@ type Application struct {
 
 func NewApplication() *Application {
 	return &Application{
-		port: getEnv("PORT", "8080"),
+		port: getEnv("PORT", ":8080"),
 	}
 }
 
