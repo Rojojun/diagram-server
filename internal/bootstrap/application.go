@@ -3,6 +3,9 @@ package bootstrap
 import (
 	"context"
 	"diagram-server/internal/database"
+	"diagram-server/internal/handler"
+	"diagram-server/internal/persistance"
+	"diagram-server/internal/service"
 	"errors"
 	"fmt"
 	"log"
@@ -13,9 +16,10 @@ import (
 )
 
 type Application struct {
-	port   string
-	server *http.Server
-	db     database.Connector
+	port           string
+	server         *http.Server
+	db             database.Connector
+	diagramHandler *handler.DiagramHandler
 }
 
 func NewApplication() *Application {
@@ -30,6 +34,7 @@ func (app *Application) Run(ctx context.Context) error {
 	}
 	defer app.shutdown(ctx)
 
+	app.initDependencies()
 	app.initWebServer()
 
 	// 배너 및 시스템 정보 출력
@@ -92,19 +97,35 @@ func (app *Application) initWebServer() {
 		_, _ = w.Write([]byte("OK"))
 	})
 
+	mux.HandleFunc("POST /api/diagrams", app.diagramHandler.Create)
+	mux.HandleFunc("GET /api/diagrams/{type}", app.diagramHandler.GetAllByType)
+	mux.HandleFunc("GET /api/diagrams/{id}", app.diagramHandler.GetByID)
+	mux.HandleFunc("DELETE /api/diagrams/{id}", app.diagramHandler.Delete)
+
 	app.server = &http.Server{
 		Addr:    app.port,
 		Handler: mux,
 	}
 }
 
+func (app *Application) initDependencies() {
+	mongoConn := app.db.(*database.MongoConnector)
+	db := mongoConn.DB()
+
+	diagramRepo := persistance.NewDiagramRepository(db)
+	diagramSvc := service.NewDiagramService(diagramRepo)
+	app.diagramHandler = handler.NewDiagramHandler(diagramSvc)
+
+	log.Println("[INFO] Dependencies initialized")
+}
+
 func (app *Application) shutdown(ctx context.Context) {
 	if app.db != nil {
 		if err := app.db.Disconnect(ctx); err != nil {
 			log.Fatalf("[Error] Database disconnect error: %v", err)
-		} else {
-			log.Println("Database disconnected")
 		}
+
+		log.Println("Database disconnected")
 	}
 }
 
