@@ -20,6 +20,10 @@ type diagramService struct {
 	repo persistance.DiagramRepository
 }
 
+func NewDiagramService(repo persistance.DiagramRepository) DiagramService {
+	return &diagramService{repo: repo}
+}
+
 type CreateDiagramRequest struct {
 	Title       string
 	Description *string
