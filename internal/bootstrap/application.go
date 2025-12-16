@@ -98,7 +98,7 @@ func (app *Application) initWebServer() {
 	})
 
 	mux.HandleFunc("POST /api/diagrams", app.diagramHandler.Create)
-	mux.HandleFunc("GET /api/diagrams/{type}", app.diagramHandler.GetAllByType)
+	mux.HandleFunc("GET /api/diagrams/by-type/{type}", app.diagramHandler.GetAllByType)
 	mux.HandleFunc("GET /api/diagrams/{id}", app.diagramHandler.GetByID)
 	mux.HandleFunc("DELETE /api/diagrams/{id}", app.diagramHandler.Delete)
 
