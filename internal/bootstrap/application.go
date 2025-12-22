@@ -13,6 +13,8 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 type Application struct {
@@ -23,8 +25,12 @@ type Application struct {
 }
 
 func NewApplication() *Application {
+	if err := godotenv.Load(); err != nil {
+		log.Println("[INFO] .env file not found, relying on OS environment variables")
+	}
+
 	return &Application{
-		port: getEnv("PORT", ":8080"),
+		port: getEnv("PORT", "8080"),
 	}
 }
 
@@ -62,8 +68,8 @@ func (app *Application) Run(ctx context.Context) error {
 func (app *Application) initDatabase(ctx context.Context) error {
 	cfg := database.Config{
 		Type:     database.MongoDB,
-		Uri:      "mongodb://localhost:27017",
-		Database: "diagram",
+		Uri:      getEnv("DATABASE", "mongodb://localhost:27017"),
+		Database: getEnv("COLLECTION", "diagram"),
 		Pool: database.PoolConfig{
 			MinSize:     getEnvUint64("DB_POOL_MIN", 5),
 			MaxSize:     getEnvUint64("DB_POOL_MAX", 100),
@@ -103,7 +109,7 @@ func (app *Application) initWebServer() {
 	mux.HandleFunc("DELETE /api/diagrams/{id}", app.diagramHandler.Delete)
 
 	app.server = &http.Server{
-		Addr:    app.port,
+		Addr:    fmt.Sprintf(":%s", app.port),
 		Handler: mux,
 	}
 }

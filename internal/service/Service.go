@@ -5,11 +5,10 @@ import (
 	"diagram-server/internal/domain"
 	"diagram-server/internal/persistance"
 	"errors"
-	"time"
 )
 
 type DiagramService interface {
-	Create(ctx context.Context, req CreateDiagramRequest) (*domain.ERDiagramDomain, error)
+	Create(ctx context.Context, req CreateDiagramRequest) (*domain.ERDiagram, error)
 	GetByID(ctx context.Context, id string) (domain.Diagram, error)
 	GetAllByType(ctx context.Context, dtype domain.DiagramType) ([]domain.Diagram, error)
 	Update(ctx context.Context, id string, req UpdateDiagramRequest) error
@@ -26,34 +25,31 @@ func NewDiagramService(repo persistance.DiagramRepository) DiagramService {
 
 type CreateDiagramRequest struct {
 	Title       string
+	Owner       string
 	Description *string
-	Tables      []domain.TableDomain
+	Tables      []domain.Table
 }
 
 type UpdateDiagramRequest struct {
 	Title       *string
 	Description *string
-	Tables      []domain.TableDomain
+	Tables      []domain.Table
 }
 
-func (s *diagramService) Create(ctx context.Context, req CreateDiagramRequest) (*domain.ERDiagramDomain, error) {
-	now := time.Now()
-	diagram := &domain.ERDiagramDomain{
-		DiagramDomain: domain.DiagramDomain{
-			Title:       req.Title,
-			Description: req.Description,
-			CreatedAt:   now,
-			ModifiedAt:  now,
-		},
-		Tables: req.Tables,
-	}
+func (s *diagramService) Create(ctx context.Context, req CreateDiagramRequest) (*domain.ERDiagram, error) {
+	diagram := domain.NewERDiagram(
+		req.Title,
+		req.Description,
+		req.Owner,
+		req.Tables,
+	)
 
 	id, err := s.repo.Save(ctx, diagram)
 	if err != nil {
 		return nil, err
 	}
 
-	diagram.ID = id
+	diagram.SetID(id)
 	return diagram, nil
 }
 
@@ -71,21 +67,12 @@ func (s *diagramService) Update(ctx context.Context, id string, req UpdateDiagra
 		return err
 	}
 
-	erd, ok := diagram.(*domain.ERDiagramDomain)
+	erd, ok := diagram.(*domain.ERDiagram)
 	if !ok {
 		return errors.New("invalid diagram type")
 	}
 
-	if req.Title != nil {
-		erd.Title = *req.Title
-	}
-	if req.Description != nil {
-		erd.Description = req.Description
-	}
-	if req.Tables != nil {
-		erd.Tables = req.Tables
-	}
-	erd.ModifiedAt = time.Now()
+	erd.Update(req.Title, req.Description, req.Tables)
 
 	return s.repo.Update(ctx, erd)
 }

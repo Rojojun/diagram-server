@@ -8,8 +8,8 @@ type DiagramModel struct {
 	ID          string    `bson:"_id,omitempty"`
 	Dtype       string    `bson:"dtype"`
 	Title       string    `bson:"title"`
+	Owner       string    `bson:"owner"`
 	Description *string   `bson:"description,omitempty"`
-	ParentId    *string   `bson:"parent_id,omitempty"`
 	CreatedAt   time.Time `bson:"createdAt"`
 	ModifiedAt  time.Time `bson:"modifiedAt"`
 
@@ -18,9 +18,10 @@ type DiagramModel struct {
 }
 
 type TableModel struct {
-	Name      string          `bson:"name"`
-	Columns   []ColumnModel   `bson:"columns"`
-	Relations []RelationModel `bson:"relations"`
+	Name          string          `bson:"name"`
+	OriginalQuery *string         `bson:"original_query,omitempty"`
+	Columns       []ColumnModel   `bson:"columns"`
+	Relations     []RelationModel `bson:"relations"`
 }
 
 type ColumnModel struct {

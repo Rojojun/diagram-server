@@ -86,29 +86,29 @@ func (h *DiagramHandler) Delete(w http.ResponseWriter, r *http.Request) {
 
 func toResponse(d domain.Diagram) DiagramResponse {
 	resp := DiagramResponse{
-		ID:        d.GetId(),
-		Type:      string(d.GetDiagramType()),
-		CreatedAt: d.GetCreatedAt().Format(time.RFC3339),
+		ID:        d.ID(),
+		Type:      string(d.Type()),
+		CreatedAt: d.CreatedAt().Format(time.RFC3339),
 	}
 
-	if erd, ok := d.(*domain.ERDiagramDomain); ok {
-		resp.Title = erd.Title
-		resp.Description = erd.Description
-		resp.ModifiedAt = erd.ModifiedAt.Format(time.RFC3339)
+	if erd, ok := d.(*domain.ERDiagram); ok {
+		resp.Title = erd.Title()
+		resp.Description = erd.Description()
+		resp.ModifiedAt = erd.ModifiedAt().Format(time.RFC3339)
 		resp.Tables = toTableDTOs(erd.Tables)
 	}
 
 	return resp
 }
 
-func toTableDomains(dtos []TableDTO) []domain.TableDomain {
+func toTableDomains(dtos []TableDTO) []domain.Table {
 	if dtos == nil {
 		return nil
 	}
 
-	result := make([]domain.TableDomain, len(dtos))
+	result := make([]domain.Table, len(dtos))
 	for i, dto := range dtos {
-		result[i] = domain.TableDomain{
+		result[i] = domain.Table{
 			Name:      dto.Name,
 			Columns:   toColumnDomains(dto.Columns),
 			Relations: toRelationDomains(dto.Relations),
@@ -117,14 +117,14 @@ func toTableDomains(dtos []TableDTO) []domain.TableDomain {
 	return result
 }
 
-func toColumnDomains(dtos []ColumnDTO) *[]domain.ColumnDomain {
+func toColumnDomains(dtos []ColumnDTO) *[]domain.Column {
 	if dtos == nil {
 		return nil
 	}
 
-	result := make([]domain.ColumnDomain, len(dtos))
+	result := make([]domain.Column, len(dtos))
 	for i, dto := range dtos {
-		result[i] = domain.ColumnDomain{
+		result[i] = domain.Column{
 			Name:        dto.Name,
 			Type:        dto.Type,
 			PK:          dto.PK,
@@ -135,14 +135,14 @@ func toColumnDomains(dtos []ColumnDTO) *[]domain.ColumnDomain {
 	return &result
 }
 
-func toRelationDomains(dtos []RelationDTO) *[]domain.RelationDomain {
+func toRelationDomains(dtos []RelationDTO) *[]domain.Relation {
 	if dtos == nil {
 		return nil
 	}
 
-	result := make([]domain.RelationDomain, len(dtos))
+	result := make([]domain.Relation, len(dtos))
 	for i, dto := range dtos {
-		result[i] = domain.RelationDomain{
+		result[i] = domain.Relation{
 			From: dto.From,
 			To:   dto.To,
 			Type: domain.RelationType(dto.Type),
@@ -151,7 +151,7 @@ func toRelationDomains(dtos []RelationDTO) *[]domain.RelationDomain {
 	return &result
 }
 
-func toTableDTOs(tables []domain.TableDomain) []TableDTO {
+func toTableDTOs(tables []domain.Table) []TableDTO {
 	if tables == nil {
 		return nil
 	}
@@ -167,7 +167,7 @@ func toTableDTOs(tables []domain.TableDomain) []TableDTO {
 	return result
 }
 
-func toColumnDTOs(columns *[]domain.ColumnDomain) []ColumnDTO {
+func toColumnDTOs(columns *[]domain.Column) []ColumnDTO {
 	if columns == nil {
 		return nil
 	}
@@ -185,7 +185,7 @@ func toColumnDTOs(columns *[]domain.ColumnDomain) []ColumnDTO {
 	return result
 }
 
-func toRelationDTOs(relations *[]domain.RelationDomain) []RelationDTO {
+func toRelationDTOs(relations *[]domain.Relation) []RelationDTO {
 	if relations == nil {
 		return nil
 	}
