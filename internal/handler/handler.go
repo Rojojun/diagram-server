@@ -109,9 +109,10 @@ func toTableDomains(dtos []TableDTO) []domain.Table {
 	result := make([]domain.Table, len(dtos))
 	for i, dto := range dtos {
 		result[i] = domain.Table{
-			Name:      dto.Name,
-			Columns:   toColumnDomains(dto.Columns),
-			Relations: toRelationDomains(dto.Relations),
+			Name:          dto.Name,
+			OriginalQuery: dto.OriginalQuery,
+			Columns:       toColumnDomains(dto.Columns),
+			Relations:     toRelationDomains(dto.Relations),
 		}
 	}
 	return result

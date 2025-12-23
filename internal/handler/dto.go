@@ -7,9 +7,10 @@ type CreateDiagramDTO struct {
 }
 
 type TableDTO struct {
-	Name      string        `json:"name"`
-	Columns   []ColumnDTO   `json:"columns,omitempty"`
-	Relations []RelationDTO `json:"relations,omitempty"`
+	Name          string        `json:"name"`
+	OriginalQuery *string       `json:"original_query,omitempty"`
+	Columns       []ColumnDTO   `json:"columns,omitempty"`
+	Relations     []RelationDTO `json:"relations,omitempty"`
 }
 
 type ColumnDTO struct {
@@ -32,6 +33,7 @@ type DiagramResponse struct {
 	Title       string     `json:"title"`
 	Description *string    `json:"description,omitempty"`
 	Tables      []TableDTO `json:"tables,omitempty"`
+	Owner       string     `json:"owner"`
 	CreatedAt   string     `json:"createdAt"`
 	ModifiedAt  string     `json:"modifiedAt"`
 }
