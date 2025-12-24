@@ -2,6 +2,7 @@ package handler
 
 type CreateDiagramDTO struct {
 	Title       string     `json:"title"`
+	Owner       string     `json:"owner"`
 	Description *string    `json:"description,omitempty"`
 	Tables      []TableDTO `json:"tables,omitempty"`
 }

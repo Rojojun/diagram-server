@@ -26,6 +26,7 @@ func (h *DiagramHandler) Create(w http.ResponseWriter, r *http.Request) {
 	req := service.CreateDiagramRequest{
 		Title:       dto.Title,
 		Description: dto.Description,
+		Owner:       dto.Owner,
 		Tables:      toTableDomains(dto.Tables),
 	}
 
@@ -82,8 +83,6 @@ func (h *DiagramHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// ========== Mappers ==========
-
 func toResponse(d domain.Diagram) DiagramResponse {
 	resp := DiagramResponse{
 		ID:        d.ID(),
@@ -93,6 +92,7 @@ func toResponse(d domain.Diagram) DiagramResponse {
 
 	if erd, ok := d.(*domain.ERDiagram); ok {
 		resp.Title = erd.Title()
+		resp.Owner = erd.Owner()
 		resp.Description = erd.Description()
 		resp.ModifiedAt = erd.ModifiedAt().Format(time.RFC3339)
 		resp.Tables = toTableDTOs(erd.Tables)
