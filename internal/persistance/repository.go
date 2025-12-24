@@ -98,6 +98,12 @@ func (r *mongoDiagramRepository) decodeCursor(ctx context.Context, cursor *mongo
 		if err := cursor.Decode(&model); err != nil {
 			return nil, err
 		}
+
+		entity, err := model.ToEntity()
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, entity)
 	}
 
 	return results, nil
